@@ -18,6 +18,7 @@
     </el-form>
 
     <el-table :data="talkChatRoomTableData">
+      <el-table-column type="index" width="50"></el-table-column>
       <el-table-column label="群二维码" prop="qunQr"></el-table-column>
       <el-table-column label="群ID" prop="qunid"></el-table-column>
       <el-table-column label="成员数量" prop="friendNum"></el-table-column>
@@ -39,6 +40,8 @@
 </template>
 
 <script>
+
+import {file2txtArr} from '../jsModule/utils.js';
 
 export default {
   name: 'talkFriendMgr',
@@ -155,16 +158,15 @@ export default {
         });
     },
     //添加
-    add: function(){
+    add: async function(){
       let file = this.$refs.upload.$refs['upload-inner'].$refs.input;
-      var formData = new FormData();
-      formData.append('txtFile', file.files[0]);
-      this.$http.post(this.apiPath + '/webServer/addTalkChatRoom', formData).then((res)=>{
+      let qunQrArr = await file2txtArr(file.files[0]);
+      this.$http.post(this.apiPath + '/webServer/addTalkChatRoom', {qunQrArr: qunQrArr.join(',')}, {emulateJSON: true}).then((res)=>{
             console.log(res.body);
             this.txtFile = [];
             var resJson = res.body;
             this.$message({
-                message: '添加成功群聊二维码数量：' + resJson.saveWxCount,
+                message: '添加成功群聊二维码数量：' + resJson.saveQunQrCount,
                 type: 'success',
                 showClose: true
             });

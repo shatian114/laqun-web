@@ -13,6 +13,7 @@
     </el-form>
 
     <el-table :data="ipTableData">
+      <el-table-column type="index" width="50"></el-table-column>
       <el-table-column label="IP" prop="ipAddr"></el-table-column>
       <el-table-column label="使用次数" prop="useNum"></el-table-column>
       <el-table-column label="最后使用时间" prop="lastUseTime"></el-table-column>
@@ -80,7 +81,7 @@ export default {
       });
     },
     search: function(){
-        this.$http.post(this.apiPath + '/webServer/getIp', {searchIp: this.searchIp}, {emulateJSON: true}).then((res)=>{
+        this.$http.post(this.apiPath + '/webServer/getIp', {ipAddr: this.searchIp}, {emulateJSON: true}).then((res)=>{
             console.log(res.body);
             var resJson = res.body;
             if(resJson.res == 'success'){

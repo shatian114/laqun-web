@@ -20,6 +20,7 @@
     </el-form>
 
     <el-table :data="resourcesTableData">
+      <el-table-column type="index" width="50"></el-table-column>
       <el-table-column label="图片" prop="fileName">
         <template slot-scope="scope">
           <img :src="apiPath.substr(0, apiPath.length-4) + '/files/' + selectType + '/' + scope.row.val + '.jpg'" width="80px" height="80px" />
@@ -71,7 +72,7 @@ export default {
     },
     delSn: function(fileName){
       console.log('del: ' + fileName + ", resourcesType: " + this.selectType);
-      this.$http.post(this.apiPath + '/webServer/delImg', {resourcesType: this.selectType, fileName: fileName}, {emulateJSON: true}).then((res)=>{
+      this.$http.post(this.apiPath + '/webServer/delResources', {type: this.selectType, val: fileName}, {emulateJSON: true}).then((res)=>{
         console.log(res.body);
         var resJson = res.body;
         if(resJson.res == 'success'){
@@ -185,8 +186,8 @@ export default {
     //上传图片
     upImg: function(){
       var formData = new FormData();
-      formData.append('resourcesType', this.selectType);
-      formData.append('img', this.fileList[this.fileIndex]);
+      formData.append('resourceType', this.selectType);
+      formData.append('imgFile', this.fileList[this.fileIndex]);
       this.$http.post(this.apiPath + '/webServer/addImgResources', formData).then((res)=>{
           console.log(res.body);
           var resJson = res.body;

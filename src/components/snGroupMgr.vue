@@ -28,6 +28,7 @@
     </el-dialog>
 
     <el-table :data="snGroupTableData">
+      <el-table-column type="index" width="50"></el-table-column>
       <el-table-column label="SN组" prop="groupName"></el-table-column>
       <el-table-column label="添加时间" prop="addTime"></el-table-column>
       <el-table-column label="操作">
@@ -38,7 +39,7 @@
                 <el-button type="info" @click="scope.row.popView = false">取消</el-button>
             </div>
             <el-button type="text" size="small" slot="reference">删除</el-button>
-            <el-button type="text" size="small" slot="reference" @click="changeSnGroup(scope.row.groupName, scope.row.groupMember)">编辑</el-button>
+            <el-button type="text" size="small" slot="reference" @click="changeSnGroup(scope.row.groupName, scope.row.groupMember, scope.row.id)">编辑</el-button>
           </el-popover>
         </template>
       </el-table-column>
@@ -55,6 +56,7 @@ export default {
   },
   data: function(){
     return {
+      snGroupId: 0,
       snGroupName: '',
       snArr: [],
       selectSnArr: [],
@@ -69,10 +71,11 @@ export default {
   },
   methods: {
     //弹出dialog前设置修改内容
-    changeSnGroup: function(groupName, groupMember){
+    changeSnGroup: function(groupName, groupMember, id){
       console.log('change name: ' + groupName);
       this.selectSnArr = groupMember.split(',');
       this.snGroupName = groupName;
+      this.snGroupId = id;
       this.addOrChange = 'change';
       this.dialogVisible = true;
     },
@@ -151,7 +154,7 @@ export default {
     //添加
     add: function(){
       console.log(this.selectSnArr);
-      this.$http.post(this.apiPath + '/webServer/addSnGroup', {operateType: this.addOrChange, snGroupName: this.snGroupName, snArr: this.selectSnArr.join(',')}, {emulateJSON: true}).then((res)=>{
+      this.$http.post(this.apiPath + '/webServer/addSnGroup', {operateType: this.addOrChange, snGroupId: this.snGroupId, snGroupName: this.snGroupName, snArr: this.selectSnArr.join(',')}, {emulateJSON: true}).then((res)=>{
             console.log(res.body);
             var resJson = res.body;
             if(resJson.res == 'success'){
@@ -160,6 +163,7 @@ export default {
                   type: 'success',
                   showClose: true
               });
+              this.search();
             }else{
               this.$message({
                   message: '操作SN组失败: ' + resJson.errInfo,

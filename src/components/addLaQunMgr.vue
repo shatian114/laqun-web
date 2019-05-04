@@ -27,6 +27,7 @@
     </el-form>
 
     <el-table :data="addWxTableData">
+      <el-table-column type="index" width="50"></el-table-column>
       <el-table-column label="群二维码" prop="qunQr"></el-table-column>
       <el-table-column label="群id" prop="qunid"></el-table-column>
       <el-table-column label="昵称" prop="nick"></el-table-column>
@@ -53,6 +54,8 @@
 </template>
 
 <script>
+
+import {file2txtArr} from '../jsModule/utils';
 
 export default {
   name: 'addLaQunMgr',
@@ -146,18 +149,14 @@ export default {
         });
     },
     //添加
-    add: function(){
+    add: async function(){
       let file = this.$refs.upload.$refs['upload-inner'].$refs.input;
-      var formData = new FormData();
-      console.log('selectCustomer: ' + this.selectCustomer);
-      formData.append('customer', this.selectCustomer);
-      formData.append('txtFile', file.files[0]);
-      formData.append('priority', this.selectPriority);
-      this.$http.post(this.apiPath + '/webServer/addLaQun', formData).then((res)=>{
+      let qunQrArr = await file2txtArr(file.files[0]);
+      this.$http.post(this.apiPath + '/webServer/addLaQun', {qunQrArr: qunQrArr.join(','), customer: this.selectCustomer, priority: this.selectPriority}, {emulateJSON: true}).then((res)=>{
           console.log(res.body);
           var resJson = res.body;
           this.$message({
-              message: '添加完成，成功添加数量：' + resJson.saveQunidCount,
+              message: '添加完成，成功添加数量：' + resJson.addCount,
               type: 'success',
               showClose: true
           });

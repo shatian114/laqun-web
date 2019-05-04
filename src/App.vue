@@ -62,8 +62,8 @@ export default {
   name: 'app',
   data: function(){
     return {
-      apiPath: '/wxQunWeb_war/api',
-      //apiPath: '/api',
+      // apiPath: '/wxQunWeb_war/api',
+      apiPath: '/api',
       asideHeight: 0,
       pageSize: 10,
       isLoged: false,

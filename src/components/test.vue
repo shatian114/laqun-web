@@ -12,6 +12,12 @@
         <el-form-item>
             <el-button type="primary" v-on:click="search">查询</el-button>
         </el-form-item>
+        <el-form-item>
+            <el-button type="primary" v-on:click="getBook">获取</el-button>
+        </el-form-item>
+        <el-form-item>
+            <el-button type="primary" v-on:click="setBook">设置</el-button>
+        </el-form-item>
     </el-form>
   </div>
 </template>
@@ -35,6 +41,20 @@ export default {
     }
   },
   methods: {
+    getBook: function() {
+      this.$http.post("/api/webServer/getNick", {val: ''}, {emulateJSON: true}).then((res)=>{
+        console.log('请求成功：', res.bodyText);
+      }, (err)=>{
+        console.log('请求失败：', err);
+      });
+    },
+    setBook: function() {
+      this.$http.post("/api/webServer/saveNick", {val: 'nick1'}, {emulateJSON: true}).then((res)=>{
+        console.log('请求成功：', res.bodyText);
+      }, (err)=>{
+        console.log('请求失败：', err);
+      });
+    },
     selectFile(){
       this.txtFile = [];
     },
@@ -44,7 +64,7 @@ export default {
         var formData = new FormData();
         formData.append('fileName', "test.sql");
         formData.append('file', file.files[0]);
-        this.$http.post(this.apiPath + '/phoneServer/getTalkChatRoom', {"sn":"12345","isUse":"0","qunQr":"https://weixin.qq.com/g/AzEyczyPa_klAJHj","friendNum":"7","laedNum":"2","isBad":"0","qunid":"4962733081@chatroom","laWxidArr":"wxid1,wxid2"}, {emulateJSON: true}).then((res)=>{
+        this.$http.post(this.apiPath + '/phoneServer/releaseAddWx', {addWx: '1----9', loginWx: '3', resourcesType: 'nick', resourcesNum: 3, "sn":"465","loginWx":"3","qunQr":"https://weixin.qq.com/g/AzEyczyPa_klAJHj","friendNum":"7","laedNum":"2","isBad":"0","qunid":"4962733081@chatroom","laWxidArr":"wxid1,wxid2"}, {emulateJSON: true}).then((res)=>{
             console.log(res.body);
             //this.customerTableData = resJson.data;
             var resJson = res.body;

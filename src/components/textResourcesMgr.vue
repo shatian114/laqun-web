@@ -20,6 +20,7 @@
     </el-form>
 
     <el-table :data="resourcesTableData">
+      <el-table-column type="index" width="50"></el-table-column>
       <el-table-column label="值" prop="val"></el-table-column>
       <el-table-column label="添加时间" prop="addTime"></el-table-column>
       <el-table-column label="操作">
@@ -38,6 +39,8 @@
 </template>
 
 <script>
+
+import {file2txtArr} from '../jsModule/utils.js';
 
 export default {
   resourcesTableData: [],
@@ -68,7 +71,7 @@ export default {
     },
     delSn: function(val){
       console.log('del: ' + val);
-      this.$http.post(this.apiPath + '/webServer/delTextResources', {resourcesType: this.selectType, val: val}, {emulateJSON: true}).then((res)=>{
+      this.$http.post(this.apiPath + '/webServer/delResources', {type: this.selectType, val: val}, {emulateJSON: true}).then((res)=>{
         console.log(res.body);
         var resJson = res.body;
         if(resJson.res == 'success'){
@@ -98,7 +101,7 @@ export default {
       });
     },
     search: function(){
-        this.$http.post(this.apiPath + '/webServer/getTextResources', {resourcesType: this.selectType}, {emulateJSON: true}).then((res)=>{
+        this.$http.post(this.apiPath + '/webServer/getResources', {resourcesType: this.selectType}, {emulateJSON: true}).then((res)=>{
             console.log(res.body);
             var resJson = res.body;
             if(resJson.res == 'success'){
@@ -132,12 +135,10 @@ export default {
         });
     },
     //添加
-    add: function(){
+    add: async function(){
       let file = this.$refs.upload.$refs['upload-inner'].$refs.input;
-      var formData = new FormData();
-      formData.append('txtFile', file.files[0]);
-      formData.append('resourceType', this.selectType);
-      this.$http.post(this.apiPath + '/webServer/addTextResources', formData, {emulateJSON: true}).then((res)=>{
+      let resourceArr = await file2txtArr(file.files[0]);
+      this.$http.post(this.apiPath + '/webServer/addTextResources', {resourceArr: resourceArr.join(','), resourceType: this.selectType}, {emulateJSON: true}).then((res)=>{
             console.log(res.body);
             var resJson = res.body;
             if(resJson.res == 'success'){

@@ -333,6 +333,7 @@ CREATE TABLE `sn` (
   `goodWxNum` int(10) unsigned NOT NULL DEFAULT 0 COMMENT '正常微信数量',
   `badWxNum` int(10) unsigned NOT NULL DEFAULT 0 COMMENT '异常微信数量',
   `currentWx` varchar(255) NOT NULL DEFAULT '' COMMENT '当前登录的微信号',
+  `remark` varchar(255) not null DEFAULT '' comment '备注'，
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniqueSn` (`sn`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
@@ -419,3 +420,12 @@ CREATE TABLE `talkFriend` (
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2018-11-08 16:13:56
+
+CREATE TABLE `resource` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `val` varchar(255) NOT NULL DEFAULT '' COMMENT '聊天内容',
+  `addTime` datetime NOT NULL DEFAULT current_timestamp(),
+  `type` varchar(50) not null DEFAULT '' comment '资源类型',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uniqueVal` (`val`, `type`)
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;

@@ -31,6 +31,7 @@
     </el-form>
 
     <el-table :data="loginWxTableDataView">
+      <el-table-column type="index" width="50"></el-table-column>
       <el-table-column label="微信号" prop="wxName"></el-table-column>
       <el-table-column label="wxid" prop="wxid"></el-table-column>
       <el-table-column label="密码" prop="wxPassword"></el-table-column>
@@ -59,6 +60,8 @@
 </template>
 
 <script>
+
+import {file2txtArr} from '../jsModule/utils.js';
 
 export default {
   name: 'loginWxMgr',
@@ -193,11 +196,10 @@ export default {
         });
     },
     //添加
-    add: function(){
+    add: async function(){
       let file = this.$refs.upload.$refs['upload-inner'].$refs.input;
-      var formData = new FormData();
-      formData.append('txtFile', file.files[0]);
-      this.$http.post(this.apiPath + '/webServer/addLoginWx', formData).then((res)=>{
+      let loginWxArr = await file2txtArr(file.files[0]);
+      this.$http.post(this.apiPath + '/webServer/addLoginWx', {loginWxArr: loginWxArr.join(',')}, {emulateJSON: true}).then((res)=>{
             console.log(res.body);
             this.txtFile = [];
             var resJson = res.body;

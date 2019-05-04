@@ -17,14 +17,20 @@
         </el-form-item>
     </el-form>
 
-    <el-table :data="snTableData">
+    <el-table :data="snTableData" >
+      <el-table-column type="index" width="50"></el-table-column>
       <el-table-column label="SN" prop="sn"></el-table-column>
+      <el-table-column label="备注" prop="remark"></el-table-column>
       <el-table-column label="异常微信数量" prop="badWxNum"></el-table-column>
       <el-table-column label="正常微信数量" prop="goodWxNum"></el-table-column>
       <el-table-column label="当前状态" prop="currentState"></el-table-column>
       <el-table-column label="任务" prop="jobName"></el-table-column>
       <el-table-column label="任务参数" prop="jobContent"></el-table-column>
-      <el-table-column label="最后通信时间" prop="lastHttpTime"></el-table-column>
+      <el-table-column label="最后通信时间">
+        <template slot-scope="scope">
+          <span :class="{ redTime: scope.row.timeout }">{{ scope.row.lastHttpTime }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="手机APP版本" prop="appVer"></el-table-column>
       <el-table-column label="操作">
         <template slot-scope="scope">
@@ -35,14 +41,29 @@
             </div>
             <el-button type="text" size="small" slot="reference">删除</el-button>
             <el-button type="text" size="small" slot="reference" @click="stopJob(scope.row.sn)" :disabled="scope.row.jobName == '任务已停止'">停止任务</el-button>
+            <el-button type="text" size="small" slot="reference" @click="visibleRemarEdit(scope.row.sn, scope.row.remark)">设置备注</el-button>
           </el-popover>
         </template>
       </el-table-column>
     </el-table>
+
+    <el-dialog
+      title='设置备注'
+      :visible.sync="remarking"
+      width="60%">
+      <el-input v-model="remark" placeholder="请输入备注" :rows="3" type="textarea"></el-input>
+      <span slot="footer">
+        <el-button @click="remarking = false">取消</el-button>
+        <el-button @click="setRemark">确定</el-button>
+      </span>
+
+    </el-dialog>
   </div>
 </template>
 
 <script>
+
+import {file2txtArr} from '../jsModule/utils.js';
 
 export default {
   name: 'snMgr',
@@ -51,14 +72,53 @@ export default {
   },
   data: function(){
     return {
+      selectSn: '',
       isAutoUpload: false,
       txtFile: [],
       snTableData: [],
       searchSn: '',
-      addSn: ''
+      addSn: '',
+      remark: '',
+      remarking: false,
     }
   },
   methods: {
+    visibleRemarEdit: function(sn, remark) {
+      this.remarking = true;
+      this.selectSn = sn;
+      this.remark = remark;
+    },
+    setRemark: function() {
+      this.$http.post(this.apiPath + '/webServer/setSnRemark', {sn: this.selectSn, remark: this.remark}, {emulateJSON: true}).then((res)=>{
+        console.log(res.body);
+        var resJson = res.body;
+        if(resJson.res == 'success'){
+          this.remarking = false;
+            this.search();
+            this.$message({
+                message: '备注设置成功',
+                type: 'success',
+                showClose: true
+            });
+        }else{
+            this.$message({
+                message: '备注设置失败',
+                type: 'error',
+                showClose: true
+            });
+        }
+      }, (err)=>{
+        this.$message({
+            type: 'error',
+            message: '服务器发生错误',
+            showClose: true
+        });
+        console.log("err: ");
+        for(var k in err){
+            console.log(k + ": " + err[k]);
+        }
+      });
+    },
     stopJob: function(sn){
       this.$http.post(this.apiPath + '/webServer/stopJob', {sn: sn}, {emulateJSON: true}).then((res)=>{
         console.log(res.body);
@@ -130,8 +190,13 @@ export default {
             var resJson = res.body;
             if(resJson.res == 'success'){
                 //先给所有的pop加上显示标志
-                for(var i=0; i<resJson.length; i++){
-                  resJson[i]['popView'] = false;
+                for(var i=0; i<resJson.data.length; i++){
+                  resJson.data[i]['popView'] = false;
+                  if(resJson.data[i]['lastHttpTime'].length == 19 && Date.parse(resJson.data[i]['lastHttpTime'])+(10*60*1000) < Date.parse(new Date())){
+                    resJson.data[i]['timeout'] = true;
+                  }else{
+                    resJson.data[i]['timeout'] = false;
+                  }
                 }
                 this.snTableData = res.body.data;
                 this.$message({
@@ -159,11 +224,10 @@ export default {
         });
     },
     //添加
-    add: function(){
+    add: async function(){
       let file = this.$refs.upload.$refs['upload-inner'].$refs.input;
-      var formData = new FormData();
-      formData.append('txtFile', file.files[0]);
-      this.$http.post(this.apiPath + '/webServer/addSn', formData).then((res)=>{
+      let snArr = await file2txtArr(file.files[0]);
+      this.$http.post(this.apiPath + '/webServer/addSn', {snArr: snArr.join(',')}, {emulateJSON: true}).then((res)=>{
             console.log(res.body);
             this.txtFile = [];
             var resJson = res.body;
@@ -190,4 +254,7 @@ export default {
 </script>
 
 <style>
+.redTime{
+  color: red;
+}
 </style>

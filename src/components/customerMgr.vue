@@ -17,6 +17,7 @@
     <hr />
 
     <el-table :data="customerTableData">
+      <el-table-column type="index" width="50"></el-table-column>
       <el-table-column label="名称" prop="name"></el-table-column>
       <el-table-column label="添加好友数量" prop="addNum"></el-table-column>
       <el-table-column label="已经成为好友数量" prop="friendNum"></el-table-column>

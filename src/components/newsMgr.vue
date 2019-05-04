@@ -18,6 +18,7 @@
     </el-form>
 
     <el-table :data="newsTableData">
+      <el-table-column type="index" width="50"></el-table-column>
       <el-table-column label="新闻名称" prop="newsName"></el-table-column>
       <el-table-column label="新闻URL" prop="newsUrl"></el-table-column>
       <el-table-column label="添加时间" prop="addTime"></el-table-column>
@@ -37,6 +38,8 @@
 </template>
 
 <script>
+
+import {file2txtArr} from '../jsModule/utils.js';
 
 export default {
   name: 'newsMgr',
@@ -122,11 +125,10 @@ export default {
         });
     },
     //添加
-    add: function(){
+    add: async function(){
       let file = this.$refs.upload.$refs['upload-inner'].$refs.input;
-      var formData = new FormData();
-      formData.append('txtFile', file.files[0]);
-      this.$http.post(this.apiPath + '/webServer/addNews', formData).then((res)=>{
+      let newsArr = await file2txtArr(file.files[0]);
+      this.$http.post(this.apiPath + '/webServer/addNews', {newsArr: newsArr.join(',')}, {emulateJSON: true}).then((res)=>{
             console.log(res.body);
             this.txtFile = [];
             var resJson = res.body;

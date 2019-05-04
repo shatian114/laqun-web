@@ -31,6 +31,7 @@
     </el-form>
 
     <el-table :data="addWxTableData">
+      <el-table-column type="index" width="50"></el-table-column>
       <el-table-column label="手机号" prop="phone"></el-table-column>
       <el-table-column label="正在使用" prop="isUse"></el-table-column>
       <el-table-column label="wxid" prop="wxid"></el-table-column>
@@ -60,6 +61,7 @@
 </template>
 
 <script>
+import {file2txtArr} from '../jsModule/utils.js';
 
 export default {
   resourcesTableData: [],
@@ -115,7 +117,7 @@ export default {
       });
     },
     search: function(){
-        this.$http.post(this.apiPath + '/webServer/getAddWx', {searchPhone: this.searchPhone}, {emulateJSON: true}).then((res)=>{
+        this.$http.post(this.apiPath + '/webServer/getAddWx', {customer: this.selectCustomer, searchPhone: this.searchPhone}, {emulateJSON: true}).then((res)=>{
             console.log(res.body);
             var resJson = res.body;
             if(resJson.res == 'success'){
@@ -149,18 +151,15 @@ export default {
         });
     },
     //添加
-    add: function(){
+    add: async function(){
       let file = this.$refs.upload.$refs['upload-inner'].$refs.input;
-      var formData = new FormData();
+      let addWxArr = await file2txtArr(file.files[0]);
       console.log('selectCustomer: ' + this.selectCustomer);
-      formData.append('customer', this.selectCustomer);
-      formData.append('txtFile', file.files[0]);
-      formData.append('priority', this.selectPriority);
-      this.$http.post(this.apiPath + '/webServer/addAddWx', formData).then((res)=>{
+      this.$http.post(this.apiPath + '/webServer/addAddWx', {customer: this.selectCustomer, priority: this.selectPriority, addWxArr: addWxArr.join(',')}, {emulateJSON: true}).then((res)=>{
           console.log(res.body);
           var resJson = res.body;
           this.$message({
-              message: '添加完成，成功添加数量：' + resJson.savePhoneCount,
+              message: '添加完成，成功添加数量：' + resJson.addCount,
               type: 'success',
               showClose: true
           });
